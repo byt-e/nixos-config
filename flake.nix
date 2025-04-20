@@ -6,9 +6,11 @@
 
     home-manager.url = "github:nix-community/home-manager/release-24.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    nvf.url = "github:notashelf/nvf";
   };
 
-  outputs = inputs@{ self, nixpkgs, home-manager, ... }: {
+  outputs = inputs@{ self, nixpkgs, home-manager, nvf, ... }: {
     # MiniPC Environment Configuration
     nixosConfigurations.minipc = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
@@ -17,7 +19,7 @@
         ./hardware-configuration.nix
       ];
     };
-
+    
     # Home Configuration for Byte user.
     homeConfigurations.byte = home-manager.lib.homeManagerConfiguration {
       pkgs = import nixpkgs {
@@ -28,6 +30,7 @@
       extraSpecialArgs = { inherit inputs; };
     
       modules = [
+        nvf.homeManagerModules.default
         ./home/byte/home.nix
       ];
     };
