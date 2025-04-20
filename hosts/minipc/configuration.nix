@@ -5,10 +5,10 @@
 { config, lib, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+#  imports =
+#    [ # Include the results of the hardware scan.
+#      ./hardware-configuration.nix
+#    ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -88,10 +88,10 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     vim 
+    neovim
     wget
     firefox
     git
-
     gcc
     gdb
     gnumake
@@ -102,6 +102,8 @@
     lsof
     coreutils
   ];
+
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
