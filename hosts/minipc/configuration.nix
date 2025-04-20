@@ -5,147 +5,88 @@
 { config, lib, pkgs, ... }:
 
 {
-#  imports =
-#    [ # Include the results of the hardware scan.
-#      ./hardware-configuration.nix
-#    ];
-
-  # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
-  boot.initrd.luks.devices = {
-    cryptroot = {
-      device = "/dev/disk/by-uuid/2420dd82-403c-4af5-9978-76edb4cfd18e";
-      preLVM = true;
-    };
-  };
-
-  networking.hostName = "nixos";
-  time.timeZone = "Europe/London";
-
-  i18n.defaultLocale = "en_GB.UTF-8";
-  console = {
-    keyMap = lib.mkForce "uk";
-    useXkbConfig = true;
-  };
-
-  # networking.hostName = "nixos"; # Define your hostname.
-  # Pick only one of the below networking options.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  # networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
-
-  # Set your time zone.
-  # time.timeZone = "Europe/Amsterdam";
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";;
-
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
-  services.desktopManager.plasma6.enable = true;
-  services.displayManager.sddm.enable = true;
-
-  networking.networkmanager.enable = true;
-
-  # Configure keymap in X11
-  # services.xserver.xkb.layout = "us";
-  # services.xserver.xkb.options = "eurosign:e,caps:escape";
-
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
-
-  # Enable sound.
-  # hardware.pulseaudio.enable = true;
-  # OR
-  # services.pipewire = {
-  #   enable = true;
-  #   pulse.enable = true;
-  # };
-
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.libinput.enable = true;
-
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  # users.users.alice = {
-  #   isNormalUser = true;
-  #   extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-  #   packages = with pkgs; [
-  #     tree
-  #   ];
-  # };
+    # Use the systemd-boot EFI boot loader.
+    boot.loader.systemd-boot.enable = true;
+    boot.loader.efi.canTouchEfiVariables = true;
   
-  users.users.byte = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
-    hashedPassword = null;
-  };
+    boot.initrd.luks.devices = {
+      cryptroot = {
+        device = "/dev/disk/by-uuid/2420dd82-403c-4af5-9978-76edb4cfd18e";
+        preLVM = true;
+      };
+    };
+  
+    networking.hostName = "nixos";
+    time.timeZone = "Europe/London";
+  
+    i18n.defaultLocale = "en_GB.UTF-8";
+    console = {
+      keyMap = lib.mkForce "uk";
+      useXkbConfig = true;
+    };
+  
+    # Enable the X11 windowing system.
+    services.xserver.enable = true;
+    services.desktopManager.plasma6.enable = true;
+    services.displayManager.sddm.enable = true;
+  
+    services.flatpak.enable = true;
+    systemd.user.services.setup-flathub = {
+        description = "Add Flathub remote";
+        wantedBy = [ "default.target" ];
+        serviceConfig.ExecStart = "${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo";
+    };
 
-  # programs.firefox.enable = true;
+    networking.networkmanager.enable = true;
+  
+    # Enable CUPS to print documents.
+    # services.printing.enable = true;
+  
+    # Enable sound.
+    # hardware.pulseaudio.enable = true;
+    # OR
+    # services.pipewire = {
+    #   enable = true;
+    #   pulse.enable = true;
+    # };
+  
+    # Enable touchpad support (enabled default in most desktopManager).
+    # services.libinput.enable = true;
+    
+    users.users.byte = {
+      isNormalUser = true;
+      extraGroups = [ "wheel" "networkmanager" ];
+      hashedPassword = null;
+    };
+  
+    # List packages installed in system profile. To search, run:
+    # $ nix search wget
+    environment.systemPackages = with pkgs; [
+        vim 
+        wget
+        firefox
+        git
+        gcc
+        gdb
+        gnumake
+        man-pages
+        man-pages-posix
+        binutils
+        strace
+        lsof
+        coreutils
+        fuse
+    ];
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    vim 
-    wget
-    firefox
-    git
-    gcc
-    gdb
-    gnumake
-    man-pages
-    man-pages-posix
-    binutils
-    strace
-    lsof
-    coreutils
-  ];
+    environment.sessionVariables.XDG_DATA_DIRS = [
+        "/home/byte/.local/share/flatpak/exports/share"
+        "/var/lib/flatpak/exports/share"
+        "/usr/local/share"
+        "/usr/share"
+    ];
+  
+    nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # Copy the NixOS configuration file and link it from the resulting system
-  # (/run/current-system/configuration.nix). This is useful in case you
-  # accidentally delete configuration.nix.
-  # system.copySystemConfiguration = true;
-
-  # This option defines the first version of NixOS you have installed on this particular machine,
-  # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
-  #
-  # Most users should NEVER change this value after the initial install, for any reason,
-  # even if you've upgraded your system to a new NixOS release.
-  #
-  # This value does NOT affect the Nixpkgs version your packages and OS are pulled from,
-  # so changing it will NOT upgrade your system - see https://nixos.org/manual/nixos/stable/#sec-upgrading for how
-  # to actually do that.
-  #
-  # This value being lower than the current NixOS release does NOT mean your system is
-  # out of date, out of support, or vulnerable.
-  #
-  # Do NOT change this value unless you have manually inspected all the changes it would make to your configuration,
-  # and migrated your data accordingly.
-  #
-  # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
-  system.stateVersion = "24.11"; # Did you read the comment?
-
+    system.stateVersion = "24.11"; # Did you read the comment?
 }
 

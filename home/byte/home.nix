@@ -1,59 +1,70 @@
-{ config, pkgs, ... }:
-
+{ config, lib, pkgs, ... }:
 {
-  home.username = "byte";
-  home.homeDirectory = "/home/byte";
-  home.stateVersion = "24.11";
+    imports = [
+        ./modules/flatpak-apps.nix
+    ];
 
-  home.packages = with pkgs; [
-    neovim ripgrep fzf tmux fd
-  ];
+    my.flatpakApps = [
+        "com.adamcake.Bolt"
+        "com.discordapp.Discord"
+        "com.github.tchx84.Flatseal"
+    ];
 
-  programs.home-manager.enable = true;
+    home.username = "byte";
+    home.homeDirectory = "/home/byte";
+    home.stateVersion = "24.11";
+  
+    home.packages = with pkgs; [
+        neovim ripgrep fzf tmux fd nerdfonts
+        flatpak
+    ];
+  
+    programs.home-manager.enable = true;
+  
+    # Program Setup
+    programs.git.enable = true;
 
-  # Program Setup
-  programs.git.enable = true;
-
-  programs.neovim = {
-    enable = true;
-    defaultEditor = true;
-    viAlias = true;
-    vimAlias = true;
-  };
-
-  programs.nvf = {
-    enable = true;
-    settings = {
-      vim = {
-        options = {
-            tabstop = 4;
-            shiftwidth = 4;
-            smarttab = true;
-            expandtab = true;
+    # Neovim Configuration
+    programs.neovim = {
+      enable = true;
+      defaultEditor = true;
+      viAlias = true;
+      vimAlias = true;
+    };
+  
+    programs.nvf = {
+      enable = true;
+      settings = {
+        vim = {
+          options = {
+              tabstop = 4;
+              shiftwidth = 4;
+              smarttab = true;
+              expandtab = true;
+          };
+        };
+        vim.lineNumberMode = "relNumber";
+  
+        vim.theme = {
+          enable = true;
+          name = "catppuccin";
+          style = "frappe";
+        };
+    
+        vim.statusline.lualine.enable = true;
+        vim.telescope.enable = true;
+        vim.autocomplete.nvim-cmp.enable = true;
+  
+        vim.languages = {
+          enableLSP = true;
+          enableTreesitter = true;
+         
+          nix.enable = true;
+          clang.enable = true;
+          clang.cHeader = true;
         };
       };
-      vim.lineNumberMode = "relNumber";
-
-      vim.theme = {
-        enable = true;
-        name = "catppuccin";
-        style = "frappe";
-      };
   
-      vim.statusline.lualine.enable = true;
-      vim.telescope.enable = true;
-      vim.autocomplete.nvim-cmp.enable = true;
-
-      vim.languages = {
-        enableLSP = true;
-        enableTreesitter = true;
-       
-        nix.enable = true;
-        clang.enable = true;
-        clang.cHeader = true;
-      };
     };
-
-  };
 }
 
