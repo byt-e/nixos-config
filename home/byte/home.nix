@@ -17,6 +17,8 @@
     home.packages = with pkgs; [
         neovim ripgrep fzf tmux fd nerdfonts
         flatpak
+        curl curl.dev
+        jansson
     ];
   
     programs.home-manager.enable = true;
