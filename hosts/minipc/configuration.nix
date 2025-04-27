@@ -76,6 +76,7 @@
         lsof
         coreutils
         fuse
+        tree
     ];
 
     environment.sessionVariables.XDG_DATA_DIRS = [
